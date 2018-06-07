@@ -95,6 +95,7 @@ let addToken token pattern =
 /// takes a pattern and outputs a sequence of all the patterns that 
 /// - matches the current pattern
 /// - could have a score superior to the given score
+/// TODO the current implementation is higly inneficient, it needs to be improve with severe prunning
 let rec fatherPatterns minimumScore pattern =
    match pattern with
    | [] -> [[]]
@@ -112,11 +113,11 @@ let findBestPattern treeList =
    let bestScore = score bestPattern
    let candidates = Set.empty
    /// if this pattern is or could become better than the best known, it is stored
-   let findBest (bestPattern, bestScore, candidates) pattern =
+   let findBest previousCandidates (bestPattern, bestScore, candidates) pattern =
       let newScore = score pattern
       if biggerScore bestScore newScore then
          (bestPattern, bestScore, candidates)
-      elif Seq.contains pattern candidates then
+      elif Seq.contains pattern previousCandidates then
          let newCandidates = Set.remove pattern candidates
          (pattern, newScore, newCandidates)
       else
@@ -125,7 +126,7 @@ let findBestPattern treeList =
    /// generate all potential father patterns and find the best one
    let findBestInTree (bestPattern, bestScore, candidates) tree =
       fatherPatterns bestScore tree.pattern
-      |> Seq.fold findBest (bestPattern, bestScore, candidates)
+      |> Seq.fold (findBest candidates) (bestPattern, bestScore, candidates)
    treeList
    |> List.fold findBestInTree (bestPattern, bestScore, candidates)
    |> fun (bestPattern,_,_) -> bestPattern
@@ -181,8 +182,8 @@ let stringOfTree tree =
 // TEST
 
 // tests the tokeniser
-let log = "paco is 33 toco. or is it 29hum.^^..?"
-let pattern = tokeniser log
+let gibberish = "paco is 33 toco. or is it 29hum.^^..?"
+let pattern = tokeniser gibberish
 printfn "%A" pattern
 
 // test match
@@ -190,10 +191,7 @@ let m = matchPattern universalPattern pattern
 printfn "match? : %b" m
 
 // tests the pattern extractor
-let log1 = "I like kittens!"
-let log2 = "I like dogs?"
-let log3 = "I like cats!"
-let log4 = "I like ham and jam."
-let log5 = "I like ham but not jam."
-let tree = buildTree [log1; log2; log3; log4; log5]
-printfn "%s" (stringOfTree tree)
+
+let kittenLogs = System.IO.File.ReadLines("tests/kittens.txt")
+let kittenTree = buildTree kittenLogs
+printfn "%s" (stringOfTree kittenTree)
