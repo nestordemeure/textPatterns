@@ -10,17 +10,17 @@ An algorithm that find patterns between lines of text and produces a tree with t
 
 ## Demo
 
-`
+```
 "I like kittens!"
 "I like dogs?"
 "I like cats!"
 "I like ham and jam."
 "I like ham but not jam."
-`
+```
 
 Becomes :
 
-`
+```
 ->"I like %s"
  ├─>"I like %s!"
  │ ├─>"I like kittens!"
@@ -29,7 +29,7 @@ Becomes :
  │ ├─>"I like ham and jam."
  │ └─>"I like ham but not jam."
  └─>"I like dogs?"
-`
+```
 
 ## TODO
 
