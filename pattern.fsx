@@ -80,6 +80,7 @@ let importation logs =
    logs
    |> Seq.map treeOfLog
    |> Seq.distinctBy (fun node -> node.pattern)
+   |> Seq.sortBy (fun node -> List.length node.pattern)
    |> Seq.toList
 
 //-----------------------------------------------------------------------------
@@ -118,8 +119,7 @@ let findBestPattern treeList =
       if biggerScore bestScore newScore then
          (bestPattern, bestScore, candidates)
       elif Seq.contains pattern previousCandidates then
-         let newCandidates = Set.remove pattern candidates
-         (pattern, newScore, newCandidates)
+         (pattern, newScore, candidates)
       else
          let newCandidates = Set.add pattern candidates
          (bestPattern, bestScore, newCandidates)
@@ -195,3 +195,10 @@ printfn "match? : %b" m
 let kittenLogs = System.IO.File.ReadLines("tests/kittens.txt")
 let kittenTree = buildTree kittenLogs
 printfn "%s" (stringOfTree kittenTree)
+
+// tests the pattern extractor
+(*
+let trueLogs = System.IO.File.ReadLines("tests/log.txt")
+let trueTree = buildTree trueLogs
+printfn "%s" (stringOfTree trueTree)
+*)

@@ -38,3 +38,4 @@ Becomes :
 - Test with actual logs.
 - Parallelise.
 - Implement tree cut-off with a specificity criteria.
+- Add tree typing to detect numbers, dates, etc
