@@ -35,9 +35,9 @@ Becomes :
 
 TODO : write clear description.
 
-Under a size it uses Hierarchical clustering.
-Over a size it does a single pass of coarse grained clustering and then retries.
-Using incremental clustering we can divide the task and fuse the results.
+- Under a size it uses Hierarchical clustering.
+- Over a size it does a single pass of coarse grained clustering and then retries.
+- Using incremental clustering we can divide the task and fuse the results.
 
 ## TODO
 
@@ -55,6 +55,6 @@ Using incremental clustering we can divide the task and fuse the results.
 
 ## References
 
-??? for the hierarchical clustering on lines of text
-Logmine for the pass of coarse grained clustering and the pass of type deduction to simplify logs
-incremental hierarchical clusterign can be found in ???
+- ??? for the hierarchical clustering on lines of text
+- Logmine for the pass of coarse grained clustering and the pass of type deduction to simplify logs
+- incremental hierarchical clusterign can be found in ???
