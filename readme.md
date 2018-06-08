@@ -33,9 +33,10 @@ Becomes :
 
 ## TODO
 
+- Add classical hierarchical clustering (o(n²))
 - Add coarse graining clustering when the number of elements is too big to use hierarchical approach.
-- The current version produces all father patterns blindly and not just the one that have a chance of suceeding.
-- Go to a more classical hierarchical clustering structure (optimized for o(n²)).
+- Add incremental clustering
+- The current version produces all father patterns blindly and not just the one that have a chance of suceeding : 2^n it should probably be dropped.
 - Clean-up the code.
 - Test with actual logs.
 - Parallelise.
