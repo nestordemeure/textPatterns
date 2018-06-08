@@ -33,9 +33,11 @@ Becomes :
 
 ## TODO
 
+- Add coarse graining clustering when the number of elements is too big to use hierarchical approach.
 - The current version produces all father patterns blindly and not just the one that have a chance of suceeding.
+- Go to a more classical hierarchical clustering structure (optimized for o(n²)).
 - Clean-up the code.
 - Test with actual logs.
 - Parallelise.
 - Implement tree cut-off with a specificity criteria.
-- Add tree typing to detect numbers, dates, etc
+- Add token typing to detect numbers, dates, etc
