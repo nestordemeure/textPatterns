@@ -9,7 +9,7 @@
 
 /// takes a path, displays the tree builded from the associated logs
 let main path =
-   let logs = Importation.importLogs path |> List.take 30
+   let logs = Importation.importLogs path |> List.take 50
    let tree = Hierarchical.buildTree logs
    Output.displayTree tree
 
