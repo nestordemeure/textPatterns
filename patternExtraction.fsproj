@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+   <OutputName>Pattern</OutputName>
+   <OutputType>Exe</OutputType>
+   <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+   <Compile Include="lib/priorityQ.fs" />
+   <Compile Include="src/pattern.fs" />
+   <Compile Include="src/importation.fs" />
+   <Compile Include="src/output.fs" />
+   <Compile Include="src/clustering/hierarchical.fs" />
+   <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>
