@@ -72,47 +72,53 @@ let addToken token pattern =
    | _ -> [token :: pattern; Unknown :: pattern]
 
 /// returns the most specific pattern that matches both patterns
-/// NOTE uses memoization to reduce complexity to o(n²)
+/// uses memoization to reduce complexity to o(n²)
 /// TODO dynamic programming could greatly increase performances
-/// TODO we could gain some speed by propagating the scores in order to avoid recomputing them at each iterations
 let commonPattern pattern1 pattern2 =
-   let memory = System.Collections.Generic.Dictionary<int*int*bool,int*int*Pattern>()
-   /// add a token (fusing the unknown) and updates the score
-   let addToken token (known,length,pattern) =
-      match token,pattern with
-      | Unknown, Unknown::q -> (known,length,pattern)
-      | Unknown, _ -> (known,length+1,token::pattern)
-      | _ -> (known+1,length+1,token::pattern)
-   /// goes to the next occurence of the given token in the string
-   let rec fastForwardTo depth pattern token =
-      match pattern with
-      | [] -> depth, pattern
-      | t::q when t = token -> depth, pattern
-      | t::q -> fastForwardTo (depth+1) q token
-   /// returns (known,length,commonPattern)
-   /// the common pattern covers one or more tokens (not zero) unless it comes at the end of the line
-   let rec father followsUnknown depth1 pattern1 depth2 pattern2 =
-      if memory.ContainsKey (depth1,depth2,followsUnknown) then memory.[(depth1,depth2,followsUnknown)] else
+   let memory = System.Collections.Generic.Dictionary<int*int*bool,(int*int)*Pattern>()
+   /// memorise a result
+   let memorise depth1 depth2 followsUnknow result =
+      memory.[(depth1,depth2,followsUnknow)] <- result
+      result
+   /// adds a token to a result while updating the score and avoiding putting several unknown in a row
+   let addToken token ((knownCount,length),pattern) =
+      match token, pattern with
+      | Unknown, Unknown::_ -> (knownCount,length), pattern
+      | Unknown, _ -> (knownCount,length+1), Unknown::pattern
+      | _ -> (knownCount+1,length+1), token::pattern
+   /// returns the best of two results
+   let best (score1,pattern1) (score2,pattern2) =
+      if score1 > score2 then (score1,pattern1) else (score2,pattern2)
+   /// find the fther of two patterns and its score
+   let rec father followsUnknow depth1 pattern1 depth2 pattern2 =
+      if memory.ContainsKey((depth1,depth2,followsUnknow)) then memory.[(depth1,depth2,followsUnknow)] else
          match pattern1, pattern2 with
-         | [], [] -> 
-            0,0,[]
-         | [], _ | _, [] -> 
-            0,1,universalPattern
-         | t1::q1, t2::q2 when t1 = t2 ->
-            father (t1=Unknown) (depth1+1) q1 (depth2+1) q2 |> addToken t1
-         | t1::q1, t2::q2 when not followsUnknown ->
+         | [], [] -> (0,0), []
+         | [], _ | _, [] -> (0,-1), [Unknown]
+         | t1::q1, t2::q2 when (t1 <> t2) && (not followsUnknow) ->
+            // mismatch, we are forced to drop both
             father true (depth1+1) q1 (depth2+1) q2 |> addToken Unknown
-         | t1::q1, t2::q2 when followsUnknown ->
-            let (n1,l1,keep1) = // t1 is part of the pattern
-               let (depth2,pattern2) = fastForwardTo depth2 pattern2 t1
-               father true depth1 pattern1 depth2 pattern2
-            let (n2,l2,drop1) = // t1 is not part of the pattern
-               father true (depth1+1) q1 depth2 pattern2
-            let result = if (n1,-l1) > (n2,-l2) then (n1,l1,keep1) else (n2,l2,drop1)
-            memory.[(depth1,depth2,followsUnknown)] <- result
-            result
-         | _ -> failwith "Pattern.father : This case should not append."
-   let (known,length,pattern) = father false 0 pattern1 0 pattern2
+            |> memorise depth1 depth2 followsUnknow
+         | t1::q1, t2::q2 when (t1 <> t2) (*followsUnknow*) ->
+            // mismatch after a drop, we can drop anyone of them
+            let drop1 = father true (depth1+1) q1 depth2 pattern2 |> addToken Unknown
+            let drop2 = father true depth1 pattern1 (depth2+1) q2 |> addToken Unknown
+            best drop1 drop2
+            |> memorise depth1 depth2 followsUnknow
+         | t1::q1, t2::q2 when (*t1=t2*) (not followsUnknow) ->
+            // match, we can keep or drop both
+            let keep = father (t1=Unknown) (depth1+1) q1 (depth2+1) q2 |> addToken t1
+            let drop = father true (depth1+1) q1 (depth2+1) q2 |> addToken Unknown
+            best keep drop
+            |> memorise depth1 depth2 followsUnknow
+         | t1::q1, t2::q2 (*t1=t2 && followsUnknow*) ->
+            // match after a drop, we can keep or drop any of them
+            let keep = father (t1=Unknown) (depth1+1) q1 (depth2+1) q2 |> addToken t1
+            let drop1 = father true (depth1+1) q1 depth2 pattern2 |> addToken Unknown
+            let drop2 = father true depth1 pattern1 (depth2+1) q2 |> addToken Unknown
+            best (best keep drop1) drop2
+            |> memorise depth1 depth2 followsUnknow
+   let score, pattern = father false 0 pattern1 0 pattern2
    pattern
 
 /// takes a pattern and outputs a sequence of all the patterns that matches the current pattern

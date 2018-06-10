@@ -55,14 +55,12 @@ The specificity of a pattern (number of known tokens divided by number of tokens
 
 Several strategies are used in order to be able to deal with very large number of elements :
 
-- Under a size it uses Hierarchical clustering.
-- Over a size it does a single pass of coarse grained clustering and then retries.
-- Using incremental clustering we can divide the task and fuse the results.
+- If the number of elements is low enough, we can use Hierarchical clustering.
+- If the number of elements is too big we can reduce the problem size using coarse grained clustering.
 
 ## TODO
 
-- Add coarse graining clustering when the number of elements is too big to use hierarchical approach.
-- Add incremental clustering
+- Add tree merge
 - Clean-up the code.
 - Parallelise.
 - Implement tree cut-off with a specificity criteria.

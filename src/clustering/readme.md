@@ -28,4 +28,14 @@ To avoid this phenomena, one can shuffle the elements, build a tree with a few h
 
 ## Coarse grained clustering
 
-**TODO**
+Algorithm that is both solid, scalable and simple.
+
+The similarity between two lines is the number of coinsciding elements divided by the length of the longest line (hamming similarity).  
+
+Each cluster is represented by an arbitrary element and a list of members, a new element is added to a cluster if its similarity to the cluster's representent is over the current threshold.  
+
+During a pass we go over all elements (starting with a threshold of 0.9) adding them to an existing cluster or, if they find no cluster, building them a new cluster.
+We run consecutive passes until convergence, we then reduce the threshold by 0.1.
+We stop when there is only one element left.
+
+Note that once the number of elements goes below a threshold, we could go back to hierarchical clustering in order to get better quality solutions (using the coarse clustering only to simplify the original problem).
