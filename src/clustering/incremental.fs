@@ -62,7 +62,7 @@ let buildTreeIncrementaly logs =
       let tree = makePatternTree [] pattern
       List.fold addPatternIntoTree tree patterns
       // with progress
-      //let mutable i = 1
+      //let mutable i = 0
       //let imax = List.length patterns |> float
       //List.fold (fun t p -> i <- i+1; printfn "Progress : %.2f percents" ((float i * 100.) / imax); addPatternIntoTree t p) tree patterns
 
@@ -77,9 +77,13 @@ let split logs =
       | t::q -> splitRec res2 (t::res1) q
    splitRec [] [] logs
 
-/// merges two trees
-let mergeTree tree1 tree2 =
-   tree1 // TODO
+/// merges a list of trees
+let mergeTreeList treeList =
+   // some trees could have the same pattern, we would then need to recurcively merge their childrens
+   // if there is only one tree to merge, we are done
+   // if a tree can be contained in another tree, we need to merge him with his childrens
+   // etc : cf add a single element
+   List.head treeList // TODO
 
 /// builds a tree by :
 /// - building a tree with hierarchical clustering if the number of elements is lower than leergeTree
@@ -90,4 +94,4 @@ let rec buildTreeMerge minSize logs =
       let logs1, logs2 = split logs
       let newLogs1 = buildTreeMerge minSize logs1
       let newLogs2 = buildTreeMerge minSize logs2
-      mergeTree newLogs1 newLogs2
+      mergeTreeList [newLogs1; newLogs2]

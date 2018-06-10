@@ -9,8 +9,8 @@ let buildTree seedSize logs =
    printfn "Hybrid clustering : building first tree..."
    let seedTree = Hierarchical.buildTree seedLogs
    printfn "Hybrid clustering : starting incremental build..."
-   List.fold Incremental.addPatternIntoTree seedTree logs
+   //List.fold Incremental.addPatternIntoTree seedTree logs
    // with progress bar
-   //let mutable i = 1
-   //let imax = List.length logs |> float
-   //List.fold (fun t p -> i <- i+1; printfn "Progress : %.2f percents" ((float i * 100.) / imax); Incremental.addPatternIntoTree t p) seedTree logs
+   let mutable i = 0
+   let imax = List.length logs |> float
+   List.fold (fun t p -> i <- i+1; printfn "Progress : %.2f percents" ((float i * 100.) / imax); Incremental.addPatternIntoTree t p) seedTree logs
