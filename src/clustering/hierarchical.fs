@@ -58,13 +58,13 @@ let TreeOfNodes treeList =
             
             // DEBUG
             if (List.length matched) < 2 then
-               printfn "failing pattern is   \"%s\" who matched %d elements" (Output.stringOfPattern pattern) (List.length matched)
+               printfn "failing pattern is   %A who matched %d elements" (Output.stringOfPattern pattern) (List.length matched)
                let index1 = dist.index1
                let index2 = dist.index2
                let missedPattern1 = nonMatched |> List.filter (fun (i,p) -> i = index1 || i = index2) |> List.map snd
                let missedPattern2 = matched |> List.map snd
                let missedPattern = missedPattern1 @ missedPattern2
-               List.iter (fun n -> n.pattern |> Output.stringOfPattern |> printfn "unmatched pattern is \"%s\"") missedPattern
+               List.iter (fun n -> n.pattern |> Output.stringOfPattern |> printfn "unmatched pattern is %A") missedPattern
                failwith "Hierarchical clustering : Infinite loop."
 
             let newIndexedNode = currentNodeNumber, makePatternTree (List.map snd matched) pattern

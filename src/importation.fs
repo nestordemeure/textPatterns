@@ -14,7 +14,7 @@ open System.Text.RegularExpressions
 /// - a special punctuation sign
 /// - a group of other characters
 let tokeniser (log:string) =
-   let wordRegexp = "([0-9]+|[\w]+|[\s]+|\p{P}|\p{S})"
+   let wordRegexp = "([0-9]+|[a-zA-Z]+|[\s]+|\p{P}|\p{S})" // could use \w for letters but should find way to avoid digits
    Regex.Split(log, wordRegexp)
    |> Seq.filter ((<>) "")
    |> Seq.map Word
