@@ -25,5 +25,4 @@ let importLogs path =
    System.IO.File.ReadLines path
    |> Seq.map tokeniser
    |> Seq.distinct
-   |> Seq.sortBy List.length
    |> Seq.toList

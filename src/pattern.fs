@@ -76,7 +76,7 @@ let addToken token pattern =
 /// TODO dynamic programming could greatly increase performances
 /// TODO we could gain some speed by propagating the scores in order to avoid recomputing them at each iterations
 let commonPattern pattern1 pattern2 =
-   let memory = System.Collections.Generic.Dictionary<int*int,int*int*Pattern>()
+   let memory = System.Collections.Generic.Dictionary<int*int*bool,int*int*Pattern>()
    /// add a token (fusing the unknown) and updates the score
    let addToken token (known,length,pattern) =
       match token,pattern with
@@ -92,7 +92,7 @@ let commonPattern pattern1 pattern2 =
    /// returns (known,length,commonPattern)
    /// the common pattern covers one or more tokens (not zero) unless it comes at the end of the line
    let rec father followsUnknown depth1 pattern1 depth2 pattern2 =
-      if memory.ContainsKey (depth1,depth2) then memory.[(depth1,depth2)] else
+      if memory.ContainsKey (depth1,depth2,followsUnknown) then memory.[(depth1,depth2,followsUnknown)] else
          match pattern1, pattern2 with
          | [], [] -> 
             0,0,[]
@@ -102,15 +102,16 @@ let commonPattern pattern1 pattern2 =
             father (t1=Unknown) (depth1+1) q1 (depth2+1) q2 |> addToken t1
          | t1::q1, t2::q2 when not followsUnknown ->
             father true (depth1+1) q1 (depth2+1) q2 |> addToken Unknown
-         | t1::q1, t2::q2 (*when followsUnknown*) ->
+         | t1::q1, t2::q2 when followsUnknown ->
             let (n1,l1,keep1) = // t1 is part of the pattern
                let (depth2,pattern2) = fastForwardTo depth2 pattern2 t1
-               father followsUnknown depth1 pattern1 depth2 pattern2
+               father true depth1 pattern1 depth2 pattern2
             let (n2,l2,drop1) = // t1 is not part of the pattern
                father true (depth1+1) q1 depth2 pattern2
             let result = if (n1,-l1) > (n2,-l2) then (n1,l1,keep1) else (n2,l2,drop1)
-            memory.[(depth1,depth2)] <- result
+            memory.[(depth1,depth2,followsUnknown)] <- result
             result
+         | _ -> failwith "Pattern.father : This case should not append."
    let (known,length,pattern) = father false 0 pattern1 0 pattern2
    pattern
 
