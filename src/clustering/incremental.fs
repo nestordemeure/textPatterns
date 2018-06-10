@@ -5,6 +5,16 @@ open Pattern
 //-----------------------------------------------------------------------------
 /// INCREMENT
 
+// shuffle an array (in-place)
+let shuffle a =
+   let rand = new System.Random()
+   let swap (a: _[]) x y =
+       let tmp = a.[x]
+       a.[x] <- a.[y]
+       a.[y] <- tmp
+   Array.iteri (fun i _ -> swap a i (rand.Next(i, Array.length a))) a
+   a
+
 /// replaces x with y in the list
 let rec replaceInList x y l =
    match l with
@@ -26,8 +36,11 @@ let rec refine pattern treeList =
    | [] | [_] -> // at most one match
       treeList
    | _ -> // too many matches, we refine them
+      // refining just the matched childrens is a lot quicker but lead to local optima (this might be avoided by shuffling)
       let childrens = List.collect childrenOfNode matched
       nonMatched @ refine pattern childrens
+      // refining everyone can degrade into a full tree recomputation
+      //refine pattern (List.collect childrenOfNode treeList)
 
 /// adds a single pattern to a tree
 /// relies on the hypothesis that the pattern matches tree.pattern
@@ -63,7 +76,9 @@ let buildTreeIncrementaly logs =
    | [] -> failwith "Incremental.buildtree : empty list."
    | pattern :: patterns -> 
       let tree = makePatternTree [] pattern
-      List.fold addPatternIntoTree tree patterns
+      // TODO is shuffling, to avoid impact of local clusters of structures, beneficial ?
+      //let patterns = patterns |> Array.ofList |> shuffle
+      Seq.fold addPatternIntoTree tree patterns
 
 //-----------------------------------------------------------------------------
 /// MERGE

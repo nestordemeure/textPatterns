@@ -36,12 +36,12 @@ let computeAllDistances indexedNodes =
 /// takes a list of nodes and outputs a pattern tree
 /// relies on memoization via a set and a priority queue to reduce the complexity from o(n^3) to o(n^2)
 let TreeOfNodes treeList =
-   printfn "Hierarchical clustering : Starting."
+   //printfn "Hierarchical clustering : Starting."
    let indexedNodes = List.indexed treeList // indexed list of nodes
    let distances = computeAllDistances indexedNodes // priority queue containing all distances between nodes
    let existingNodes = set [0 .. List.length indexedNodes-1] // set of all existing node numbers
    let currentNodeNumber = -1 // node index that is free to use
-   printfn "Hierarchical clustering : Distances computed."
+   //printfn "Hierarchical clustering : Distances computed."
    /// recurcively reduces the number of nodes untel there is only one left
    let rec build distances existingNodes currentNodeNumber indexedNodes =
       match indexedNodes with
@@ -56,15 +56,15 @@ let TreeOfNodes treeList =
             let pattern = dist.father
             let matched, nonMatched = List.partition (fun (_,node) -> matchPattern pattern node.pattern) indexedNodes
             
-            // debug
+            // DEBUG
             if (List.length matched) < 2 then
                printfn "failing pattern is   \"%s\" who matched %d elements" (Output.stringOfPattern pattern) (List.length matched)
                let index1 = dist.index1
                let index2 = dist.index2
-               let missedPattern = List.head (List.filter (fun (i,p) -> i = index1 || i = index2) nonMatched) |> snd
-               printfn "unmatched pattern is \"%s\"" (Output.stringOfPattern missedPattern.pattern)
-               let missedPattern = List.head matched |> snd
-               printfn "unmatched pattern is \"%s\"" (Output.stringOfPattern missedPattern.pattern)
+               let missedPattern1 = nonMatched |> List.filter (fun (i,p) -> i = index1 || i = index2) |> List.map snd
+               let missedPattern2 = matched |> List.map snd
+               let missedPattern = missedPattern1 @ missedPattern2
+               List.iter (fun n -> n.pattern |> Output.stringOfPattern |> printfn "unmatched pattern is \"%s\"") missedPattern
                failwith "Hierarchical clustering : Infinite loop."
 
             let newIndexedNode = currentNodeNumber, makePatternTree (List.map snd matched) pattern
