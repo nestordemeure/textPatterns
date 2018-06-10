@@ -18,7 +18,9 @@ Algorithm in o(n²).
 
 ### Adding a single pattern to a tree
 
-**TODO**
+Adds one element after the other to the tree. This algorithm can deal with much large number of element (still it has not a linear complexity) but the tree might fall into local optima.
+
+To avoid this phenomena, one can shuffle the elements, build a tree with a few hundred elements using hierarchical clustering and then use the incremental method. The hope is that using a good basis will reduce the sensibility to local minimums.
 
 ### Merging two trees
 

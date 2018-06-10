@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+   <Compile Include="lib/functions.fs" />
    <Compile Include="lib/priorityQ.fs" />
    <Compile Include="src/pattern.fs" />
    <Compile Include="src/importation.fs" />
    <Compile Include="src/output.fs" />
    <Compile Include="src/clustering/hierarchical.fs" />
    <Compile Include="src/clustering/incremental.fs" />
+   <Compile Include="src/clustering/hybrid.fs" />
    <Compile Include="Program.fs" />
   </ItemGroup>
 

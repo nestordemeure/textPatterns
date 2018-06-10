@@ -5,23 +5,6 @@ open Pattern
 //-----------------------------------------------------------------------------
 /// INCREMENT
 
-// shuffle an array (in-place)
-let shuffle a =
-   let rand = new System.Random()
-   let swap (a: _[]) x y =
-       let tmp = a.[x]
-       a.[x] <- a.[y]
-       a.[y] <- tmp
-   Array.iteri (fun i _ -> swap a i (rand.Next(i, Array.length a))) a
-   a
-
-/// replaces x with y in the list
-let rec replaceInList x y l =
-   match l with
-   | [] -> []
-   | t::q when t=x -> y :: q
-   | t::q -> t :: replaceInList x y q
-
 /// returns the list of childrens of a node
 /// if a node has no children, we return a list containing the node
 let childrenOfNode node =
@@ -54,7 +37,7 @@ let rec addPatternIntoMatchingTree tree pattern =
       tree
    | [child] -> // a single match, we go there
       let newChild = addPatternIntoMatchingTree child pattern
-      let newChildrens = replaceInList child newChild tree.childrens
+      let newChildrens = Functions.replaceInList child newChild tree.childrens
       if newChild.pattern = child.pattern then {tree with childrens = newChildrens}
       else Hierarchical.TreeOfNodes newChildrens
    | _ -> // several matches, we refine the childrens until there is at most one match and we reiterate
@@ -71,14 +54,40 @@ let addPatternIntoTree tree pattern =
       Hierarchical.TreeOfNodes newChildrens
 
 /// build a tree incrementaly by adding one patern ofter the other
+/// NOTE : it is beneficial to shuffle the logs before insertion
 let buildTreeIncrementaly logs =
    match logs with
    | [] -> failwith "Incremental.buildtree : empty list."
    | pattern :: patterns -> 
       let tree = makePatternTree [] pattern
-      // TODO is shuffling, to avoid impact of local clusters of structures, beneficial ?
-      //let patterns = patterns |> Array.ofList |> shuffle
-      Seq.fold addPatternIntoTree tree patterns
+      List.fold addPatternIntoTree tree patterns
+      // with progress
+      //let mutable i = 1
+      //let imax = List.length patterns |> float
+      //List.fold (fun t p -> i <- i+1; printfn "Progress : %.2f percents" ((float i * 100.) / imax); addPatternIntoTree t p) tree patterns
 
 //-----------------------------------------------------------------------------
 /// MERGE
+
+/// splits a list into two parts of similar lengths
+let split logs =
+   let rec splitRec res1 res2 logs =
+      match logs with
+      | [] -> res1, res2
+      | t::q -> splitRec res2 (t::res1) q
+   splitRec [] [] logs
+
+/// merges two trees
+let mergeTree tree1 tree2 =
+   tree1 // TODO
+
+/// builds a tree by :
+/// - building a tree with hierarchical clustering if the number of elements is lower than leergeTree
+/// - cutting the log into two parts, building a tree for each recurcively and then merging them
+/// akin to a fuse sort algorithm
+let rec buildTreeMerge minSize logs =
+   if List.length logs <= minSize then Hierarchical.buildTree logs else
+      let logs1, logs2 = split logs
+      let newLogs1 = buildTreeMerge minSize logs1
+      let newLogs2 = buildTreeMerge minSize logs2
+      mergeTree newLogs1 newLogs2

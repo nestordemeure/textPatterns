@@ -5,9 +5,11 @@
 
 /// takes a path, displays the tree builded from the associated logs
 let main path =
-   let logs = Importation.importLogs path //|> List.take 700
-   //let tree = Hierarchical.buildTree logs
-   let tree = Incremental.buildTreeIncrementaly logs
+   let logs = Importation.importLogs path
+   //let logs = logs |> Array.ofList |> Functions.shuffle |> List.ofArray |> List.take 100 //|> List.sort//By List.length
+   //let tree = Hierarchical.buildTree logs // nearly optimal but does not scale
+   //let tree = Incremental.buildTreeIncrementaly (Functions.listShuffle logs) // scales but not optimal
+   let tree = Hybrid.buildTree 200 logs
    Output.displayTree tree
 
 //-----------------------------------------------------------------------------
@@ -18,13 +20,3 @@ printfn "Starting..."
 //main "tests/kittens.txt"
 //main "tests/log.txt"
 main "tests/kern.log" // taken from /var/log/kern.log
-(*
-let log1 = Importation.tokeniser "Jun  7 23:48:22 nestor-HP-ProBook-650-G1 kernel: [    3.072057] usb usb1: Product: EHCI Host Controller"
-let log2 = Importation.tokeniser "Jun  7 23:48:22 nestor-HP-ProBook-650-G1 kernel: [    3.110518] AppArmor: AppArmor sha1 policy hashing enabled"
-
-let pattern = Pattern.commonPattern log1 log2
-
-let tree = {pattern=pattern; childrens = List.map (makePatternTree []) [log1;log2]}
-
-Output.displayTree tree
-*)

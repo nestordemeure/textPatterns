@@ -7,14 +7,14 @@ open System.Text.RegularExpressions
 // PREPROCESSING
 
 /// takes a log and outputs a list of tokens by cutting the log into :
-/// - groups of numbers
-/// - groups of letters
+/// - groups of digits (including '+', '-' and '.')
+/// - groups of letters (including digits and '_')
 /// - groups of whitespaces
 /// - a punctuation sign
 /// - a special punctuation sign
 /// - a group of other characters
 let tokeniser (log:string) =
-   let wordRegexp = "([0-9]+|[a-zA-Z]+|[\s]+|\p{P}|\p{S})" // could use \w for letters but should find way to avoid digits
+   let wordRegexp = "([0-9+-\.]+|[\w_]+|[\s]+|\p{P}|\p{S})"
    Regex.Split(log, wordRegexp)
    |> Seq.filter ((<>) "")
    |> Seq.map Word
