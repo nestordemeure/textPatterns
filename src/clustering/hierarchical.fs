@@ -33,16 +33,15 @@ let computeAllDistances indexedNodes =
 //-----------------------------------------------------------------------------
 // TREE BUILDING
 
-/// takes a list of logs and outputs a pattern tree
-/// uses a classical hierarchical clustering algorithm
+/// takes a list of nodes and outputs a pattern tree
 /// relies on memoization via a set and a priority queue to reduce the complexity from o(n^3) to o(n^2)
-let buildTree logs =
-   printfn "starting to build tree"
-   let indexedNodes = List.map (makePatternTree []) logs |> List.indexed // indexed list of nodes
+let TreeOfNodes treeList =
+   printfn "Hierarchical clustering : Starting."
+   let indexedNodes = List.indexed treeList // indexed list of nodes
    let distances = computeAllDistances indexedNodes // priority queue containing all distances between nodes
    let existingNodes = set [0 .. List.length indexedNodes-1] // set of all existing node numbers
    let currentNodeNumber = -1 // node index that is free to use
-   printfn "distances computed"
+   printfn "Hierarchical clustering : Distances computed."
    /// recurcively reduces the number of nodes untel there is only one left
    let rec build distances existingNodes currentNodeNumber indexedNodes =
       match indexedNodes with
@@ -58,7 +57,7 @@ let buildTree logs =
             let matched, nonMatched = List.partition (fun (_,node) -> matchPattern pattern node.pattern) indexedNodes
             
             // debug
-            if (List.length indexedNodes) = (1 + List.length nonMatched) then
+            if (List.length matched) < 2 then
                printfn "failing pattern is   \"%s\" who matched %d elements" (Output.stringOfPattern pattern) (List.length matched)
                let index1 = dist.index1
                let index2 = dist.index2
@@ -66,6 +65,7 @@ let buildTree logs =
                printfn "unmatched pattern is \"%s\"" (Output.stringOfPattern missedPattern.pattern)
                let missedPattern = List.head matched |> snd
                printfn "unmatched pattern is \"%s\"" (Output.stringOfPattern missedPattern.pattern)
+               failwith "Hierarchical clustering : Infinite loop."
 
             let newIndexedNode = currentNodeNumber, makePatternTree (List.map snd matched) pattern
             let indexedNodes = newIndexedNode :: nonMatched
@@ -74,3 +74,10 @@ let buildTree logs =
             let currentNodeNumber = currentNodeNumber - 1
             build distances existingNodes currentNodeNumber indexedNodes
    build distances existingNodes currentNodeNumber indexedNodes
+
+/// takes a list of logs and outputs a pattern tree
+/// using a hierarchical clustering algorithm
+let buildTree logs =
+   logs
+   |> List.map (makePatternTree [])
+   |> TreeOfNodes
