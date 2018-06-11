@@ -3,6 +3,13 @@ module Pattern
 /// represents a token
 type Token =
    | Word of string
+   | Date
+   | PID
+   | LONGPID
+   | NumberInteger
+   | NumberFloat
+   | NumberHexadecimal of length:int
+   | Path // TODO not catched
    | Unknown // match one or more tokens unless it comes at the end of the line in which case it can also match 0 tokens
 
 /// represents a pattern 
@@ -88,13 +95,15 @@ let commonPattern pattern1 pattern2 =
       | _ -> (knownCount+1,length+1), token::pattern
    /// returns the best of two results
    let best (score1,pattern1) (score2,pattern2) =
-      if score1 > score2 then (score1,pattern1) else (score2,pattern2)
+      let n1,l1 = score1
+      let n2, l2 = score2
+      if (n1,-l1) > (n2,-l2) then (score1,pattern1) else (score2,pattern2)
    /// find the fther of two patterns and its score
    let rec father followsUnknow depth1 pattern1 depth2 pattern2 =
       if memory.ContainsKey((depth1,depth2,followsUnknow)) then memory.[(depth1,depth2,followsUnknow)] else
          match pattern1, pattern2 with
          | [], [] -> (0,0), []
-         | [], _ | _, [] -> (0,-1), [Unknown]
+         | [], _ | _, [] -> (0,1), [Unknown]
          | t1::q1, t2::q2 when (t1 <> t2) && (not followsUnknow) ->
             // mismatch, we are forced to drop both
             father true (depth1+1) q1 (depth2+1) q2 |> addToken Unknown
