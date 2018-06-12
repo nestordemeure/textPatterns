@@ -180,7 +180,6 @@ let rec split splitThreshold tree =
 
 /// splits a tree using the parent's pattern as a way to normalize the specificity
 let splitDifferential splitThreshold tree =
-   let ignoredTokens = set [Space; Word ":"; Word "["; Word "]"]
    let rec split knownParent tree =
       let scoreTree = scoreTextOnly tree.pattern
       let known = max 0 (scoreTree.known - knownParent)
