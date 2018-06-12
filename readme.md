@@ -58,13 +58,18 @@ Several strategies are used in order to be able to deal with very large number o
 - If the number of elements is low enough, we can use Hierarchical clustering.
 - If the number of elements is too big we can reduce the problem size using coarse grained clustering.
 
+### Cut-off
+
+The cut-off is done with a threshold on the specificity. However our formula to compute the specificity has two particularities :
+
+- We only take recognised types and word containing nothing but ascii characters into account to compute the score.
+- we compute the number of known (non joker) tokens from the father of a node and deduce it from its number of known tokens and length in order to compute the specificity. Hence negate the impact of common prefixes.
+
 ## TODO
 
 - Add tree merge
 - Clean-up the code.
 - Parallelise.
-- Implement tree cut-off with a specificity criteria.
-- Add token typing to detect numbers, dates, etc
 - clean-up references
 - add proper algorithm description
 - add exportation of pattern in regexp form
