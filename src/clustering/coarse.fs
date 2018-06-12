@@ -53,12 +53,12 @@ let buildTree logs =
       | [tree] -> tree
       | _ -> 
          let newTreeList = clusteringPass distanceThreshold treeList
+         //let newThreshold = distanceThreshold + 0.1
+         let newThreshold = 1.3*distanceThreshold
          if List.length newTreeList < List.length treeList then 
-            printfn "Sucessfull pass"
-            build (1.3*distanceThreshold) newTreeList
+            printfn "Sucessfull pass %f" distanceThreshold
+            build newThreshold newTreeList
          else
-            //let newThreshold = distanceThreshold + 0.1
-            let newThreshold = 1.3*distanceThreshold
             printfn "Relaxation %f->%f" distanceThreshold newThreshold 
             build newThreshold treeList
    build distanceThreshold treeList

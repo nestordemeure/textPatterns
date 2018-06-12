@@ -3,13 +3,13 @@ module Pattern
 /// represents a token
 type Token =
    | Word of string
-   | Date
-   | PID
-   | LONGPID
+   | Space
+   | Month
+   | LPID
    | NumberInteger
    | NumberFloat
    | NumberHexadecimal of length:int
-   | Path // TODO not catched
+   | Path
    | Unknown // match one or more tokens unless it comes at the end of the line in which case it can also match 0 tokens
 
 /// represents a pattern 

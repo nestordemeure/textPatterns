@@ -10,9 +10,9 @@ let stringOfToken token =
    match token with
    | Unknown -> "%s"
    | Word w -> w
-   | Date -> "%{date}"
-   | LONGPID -> "[%f]"
-   | PID -> "[%d]:"
+   | Space -> " "
+   | Month -> "%{month}"
+   | LPID -> "[%f]"
    | Path -> "%{path}"
    | NumberFloat -> "%f"
    | NumberInteger -> "%d"
