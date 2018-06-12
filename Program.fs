@@ -13,8 +13,12 @@ let main path =
    //let tree = Incremental.buildTreeIncrementaly (Functions.listShuffle logs) // scales but not optimal
    //let tree = Hybrid.buildTree 200 logs
    let tree = Coarse.buildTree logs
-   printfn "Printing tree..."
    Output.displayTree tree
+   printfn "Cutting tree..."
+   //let patterns = Pattern.split 0.5 tree
+   let patterns = Pattern.splitDifferential 0.6 tree
+   printfn "Printing result..."
+   Output.displayPatterns patterns
 
 //-----------------------------------------------------------------------------
 // TESTS

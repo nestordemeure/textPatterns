@@ -59,6 +59,30 @@ let score pattern =
    List.iter count pattern
    {known=known; negativ_length= -length}
 
+/// return the fraction of known token in a pattern : the higher the better
+let specificity pattern =
+   let sc = score pattern
+   float sc.known / float -sc.negativ_length
+
+/// retruns true is the word contains only ascii characters
+let isTextOnly w =
+   let isTextChar c =
+      ((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))
+   String.forall isTextChar w
+
+/// score that does not take Word whose text contains non ascii character into account
+/// closer to human intuition about specificity (spaces are not seen as interesting tokens by humans)
+let scoreTextOnly pattern =
+   let mutable length = 0
+   let mutable known = 0
+   let count t =
+      match t with
+      | Unknown -> length <- length + 1
+      | Word w when not (isTextOnly w) -> ()
+      | _ -> known <- known + 1 ; length <- length + 1
+   List.iter count pattern
+   {known=known; negativ_length= -length}
+
 //-----------------------------------------------------------------------------
 // PATTERN BUILDING
 
@@ -147,3 +171,21 @@ type PatternTree = {pattern : Pattern; childrens : PatternTree list}
 
 /// assemble a tree
 let makePatternTree childrens pattern = {pattern=pattern; childrens=childrens}
+
+/// splits a tree if it it not specific enough
+let rec split splitThreshold tree =
+   let specif = specificity tree.pattern
+   if (List.isEmpty tree.childrens) || (specif > splitThreshold) then [specif, tree.pattern] else
+      List.collect (split splitThreshold) tree.childrens
+
+/// splits a tree using the parent's pattern as a way to normalize the specificity
+let splitDifferential splitThreshold tree =
+   let ignoredTokens = set [Space; Word ":"; Word "["; Word "]"]
+   let rec split knownParent tree =
+      let scoreTree = scoreTextOnly tree.pattern
+      let known = max 0 (scoreTree.known - knownParent)
+      let length = max 0 (- scoreTree.negativ_length - knownParent)
+      let specif = float known / float length
+      if (List.isEmpty tree.childrens) || (specif >= splitThreshold) then [specif, tree.pattern] else
+         List.collect (split scoreTree.known) tree.childrens
+   split (scoreTextOnly tree.pattern).known tree

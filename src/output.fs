@@ -44,3 +44,7 @@ let displayTree tree =
          displayTreeList indentation q
    printfn "->\"%s\"" (stringOfPattern tree.pattern)
    displayTreeList " " tree.childrens
+
+/// displays a list of patterns
+let displayPatterns patterns =
+   List.iter (fun (specif,pattern) -> printfn "%f>\"%s\"" specif (stringOfPattern pattern)) patterns
