@@ -47,12 +47,6 @@ let (|Integer|_|) token =
    | NumberInteger -> Some ()
    | _ -> None
 
-/// active pattern that matches integers lower than a given int
-let (|IntMax|_|) maximumInt token =
-   match token with
-   | Word w when (String.forall isDigit w) && (int w <= maximumInt) -> Some ()
-   | _ -> None
-
 /// active pattern that matches months
 let (|MonthMatcher|_|) token =
    match token with
@@ -73,7 +67,7 @@ let (|Hexa|_|) token =
    | _ -> None
 
 /// active pattern that matches all kind of separators
-/// anything that is not a number or a letter ?
+/// anything that is a single char and not a number or a letter ?
 let (|Separator|_|) token =
    match token with
    | Word ":" | Spaces | Word "-" | Word "~" | Word "." | Word "/" 
@@ -81,16 +75,8 @@ let (|Separator|_|) token =
    | Word "," | Word "`" | Word "=" | Word "#" | Word "+" | Word "*" | Word "^" -> Some token
    | _ -> None
 
-let typeSeparator token =
-   match token with
-   | Spaces -> Space
-   | _ -> token
-
-/// matches elements that ends with digits and rewrite them
-let NumberedElement token =
-   token
-
 /// matches a path
+/// TODO the definition of elements in a path could be better
 let (|PathMatcher|_|) tokens =
    /// extracts the path that was started
    let rec extractPath tokens =
