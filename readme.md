@@ -1,4 +1,4 @@
-# Scalable hierarchical clustering to extract patterns from lines of text
+# WORK IN PROGRESS : Scalable hierarchical clustering to extract patterns from lines of text
 
 An algorithm that find patterns between lines of text and produces a tree with the hierarchy of patterns.
 
