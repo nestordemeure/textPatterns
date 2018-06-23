@@ -8,7 +8,7 @@ let main path =
    printfn "Loading Logs..."
    let logs = Importation.importLogs path
    printfn "Building tree..."
-   //let logs = logs (*|> Functions.listShuffle*) |> List.take 300 |> List.sort//By List.length
+   let logs = logs (*|> Functions.listShuffle*) (*|> List.take 300*) |> List.sort//By List.length
    //let tree = Hierarchical.buildTree logs // nearly optimal but does not scale
    let tree = Incremental.buildTreeIncrementaly logs // scales but not optimal
    //let tree = Hybrid.buildTree 200 logs

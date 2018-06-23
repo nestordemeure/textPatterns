@@ -10,40 +10,27 @@ type ElaboratePatternTree = {pattern : Pattern; childrens : ElaboratePatternTree
 
 /// takes an elaborate pattern tree and outputs a simple pattern tree
 let rec toPatternTree tree =
-   let leafs = List.map (makePatternTree []) tree.leafs
    let childrens = List.map toPatternTree tree.childrens
+   let leafs = if not <| List.isEmpty childrens then [] else List.map (makePatternTree []) tree.leafs
    {pattern = tree.pattern; childrens = leafs @ childrens}
 
 //-----------------------------------------------------------------------------
 // INCREMENT
 
 /// we find the most specific father we can get with a leaf
+/// the father as to be strictly more specific than treePattern
 /// and output a (tree, leafs) option with the tree build on top of the new pattern and the leafs minus the leaf that matches that pattern
-let addPatternToleafs leafs pattern =
-   /// searches for the most specific pattern available
-   let rec search bestScore bestFather bestLeaf discardedLeafs leafs =
-      match leafs with
-      | [] -> 
-         // TODO we might want to check wether old leafs match this pattern but we should be able to presupose independence
-         //{pattern = bestFather; childrens = []; leafs = [bestLeaf; pattern]} , discardedLeafs
-         let matching, nonMatching = List.partition (fun p -> matchPattern p bestFather) discardedLeafs
-         {pattern = bestFather; childrens = []; leafs = bestLeaf :: pattern :: matching} , nonMatching
-      | leaf :: leafs ->
-         let father = Pattern.commonPattern pattern leaf
-         let scoreLeaf = Pattern.score father
-         if scoreLeaf > bestScore then
-            search scoreLeaf father leaf (bestLeaf::discardedLeafs) leafs
-         else search bestScore bestFather bestLeaf (leaf::discardedLeafs) leafs
-   // tries to go and search for the most specific pattern available
+let addPatternToleafs leafs treePattern pattern =
    match leafs with
    | [] -> None
-   | leaf :: leafs ->
+   | _ ->
+      //let father = leafs |> List.map (Pattern.commonPattern pattern) |> List.maxBy Pattern.score
+      let leaf, leafs = Functions.extractMax (Pattern.commonPattern pattern >> Pattern.score) leafs
       let father = Pattern.commonPattern pattern leaf
-      let scoreLeaf = Pattern.score father
-      let result = search scoreLeaf father leaf [] leafs
-      Some result
-
-let mutable unused = [] : Pattern list
+      if father = treePattern || Pattern.score father < Pattern.score treePattern then None else
+         let matching, nonMatching = List.partition (fun p -> matchPattern p father) leafs
+         let child = {pattern = father; childrens = []; leafs = pattern :: leaf :: matching} 
+         Some (child, nonMatching)
 
 /// adds a single pattern to a tree
 /// relies on the hypothesis that the pattern matches tree.pattern
@@ -51,48 +38,43 @@ let rec addPatternIntoMatchingTree tree pattern =
    let matching, nonMatching = List.partition (fun child -> matchPattern child.pattern pattern) tree.childrens
    match matching with
    | [] -> // no match, we add the pattern to the childrens
-      match addPatternToleafs tree.leafs pattern with
-      | Some (newChild,newLeafs) when newChild.pattern <> tree.pattern -> // we build a new, more specific, pattern
+      match addPatternToleafs tree.leafs tree.pattern pattern with
+      | Some (newChild,newLeafs) -> // we find a new, more specific, pattern with the leafs
          {tree with childrens = newChild :: tree.childrens; leafs = newLeafs}
-      | _ -> // no leafs or best father = tree.pattern : we add to the leafs
+      | _ -> // we add pattern to the leafs
          {tree with leafs = pattern :: tree.leafs}
-   | [child] when child.pattern = pattern -> // the pattern alreaddy exists
-      tree
    | [child] -> // a single match, we go there
       let newChild = addPatternIntoMatchingTree child pattern
       let newChildrens = newChild :: nonMatching
       {tree with childrens = newChildrens}
    | _ -> // several matches, their pattern is too specific : we fuse them and insert into the result
-      // TODO here we should fuse patterns and leafs properly
-      // but it kills performances
       let childPattern = matching |> List.map (fun t -> t.pattern) |> List.reduce Pattern.commonPattern
       let childChildrens = List.collect (fun t -> t.childrens) matching
       let childLeafs = List.collect (fun t -> t.leafs) matching
-      if childPattern <> tree.pattern then
-         let newChild = {pattern = childPattern; childrens = childChildrens; leafs = []}
-         //let newChild = List.fold addPatternIntoMatchingTree newChild (pattern::childLeafs)
-         
-         let newChild = addPatternIntoMatchingTree newChild pattern
-         unused <- childLeafs @ unused
-         
+      // the fusion produces a valid pattern
+      if childPattern <> tree.pattern && Pattern.score childPattern >= Pattern.score tree.pattern then
+         let newChild = {pattern = childPattern; childrens = childChildrens; leafs = childLeafs}
+         let childLeafs, newLeafs = List.partition (fun leaf -> matchPattern childPattern leaf) tree.leafs
+         let newChild = List.fold addPatternIntoMatchingTree newChild (pattern::childLeafs)
          let newChildrens = newChild :: nonMatching
-         {tree with childrens = newChildrens}
+         {tree with childrens = newChildrens; leafs = newLeafs}
+      // the fusion is too vague, we cut those patterns (rarely appends)
       else
+         // TODO we suppose no leaf match a pattern from another branch but they could still be combined together
          let newChildrens = childChildrens @ nonMatching
-         let newTree = {tree with childrens = newChildrens}
-         //List.fold addPatternIntoMatchingTree newTree (pattern::childLeafs)
-         
-         unused <- childLeafs @ unused
+         let newLeafs = childLeafs @ tree.leafs
+         let newTree = {tree with childrens = newChildrens; leafs = newLeafs}
          addPatternIntoMatchingTree newTree pattern
 
 /// build a tree incrementaly by adding one patern ofter the other
 let buildTreeIncrementaly logs =
    let tree = {pattern = Pattern.universalPattern; childrens = []; leafs=[]}
-   //List.fold addPatternIntoMatchingTree tree logs |> toPatternTree
-   
-   let rec insert tree l =
-      printfn "unused : %d" (List.length unused)
-      unused <- []
-      let tree = List.fold addPatternIntoMatchingTree tree l
-      if List.isEmpty unused then toPatternTree tree else insert tree unused
-   insert tree logs
+   List.fold addPatternIntoMatchingTree tree logs |> toPatternTree
+   (*let rec insert i imax tree l =
+      match l with
+      | [] -> toPatternTree tree
+      | t::q -> 
+         printfn "%d/%d" i imax
+         let tree = addPatternIntoMatchingTree tree t
+         insert (i+1) imax tree q
+   insert 1 (List.length logs) tree logs*)
