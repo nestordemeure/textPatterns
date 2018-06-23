@@ -10,15 +10,15 @@ let main path =
    printfn "Building tree..."
    //let logs = logs (*|> Functions.listShuffle*) |> List.take 100 //|> List.sort//By List.length
    //let tree = Hierarchical.buildTree logs // nearly optimal but does not scale
-   //let tree = Incremental.buildTreeIncrementaly (Functions.listShuffle logs) // scales but not optimal
+   let tree = Incremental.buildTreeIncrementaly logs // scales but not optimal
    //let tree = Hybrid.buildTree 200 logs
-   let tree = Coarse.buildTree logs
+   //let tree = Coarse.buildTree logs
    Output.displayTree tree
-   printfn "Cutting tree..."
+   //printfn "Cutting tree..."
    //let patterns = Pattern.split 0.5 tree
-   let patterns = Pattern.splitDifferential 0.7 tree
-   printfn "Printing result..."
-   Output.displayPatterns patterns
+   //let patterns = Pattern.splitDifferential 0.7 tree
+   //printfn "Printing result..."
+   //Output.displayPatterns patterns
 
 //-----------------------------------------------------------------------------
 // TESTS
