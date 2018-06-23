@@ -36,6 +36,7 @@ let clusteringPass distanceThreshold treeList =
       if List.isEmpty childrens then tree else
          let childrens = tree :: childrens
          let pattern = childrens |> List.map (fun t -> t.pattern) |> List.reduce commonPattern
+         printfn "%s" (Output.stringOfPattern pattern)
          {pattern=pattern; childrens=childrens}
    /// reduces the number of element with a pass of clustering
    treeList |> List.fold addToClusters [] |> List.map treeOfCluster

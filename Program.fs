@@ -16,7 +16,7 @@ let main path =
    Output.displayTree tree
    printfn "Cutting tree..."
    //let patterns = Pattern.split 0.5 tree
-   let patterns = Pattern.splitDifferentialImproved 4 0.7 tree
+   let patterns = Pattern.splitDifferential 0.7 tree
    printfn "Printing result..."
    Output.displayPatterns patterns
 
