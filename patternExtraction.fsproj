@@ -15,7 +15,6 @@
    <Compile Include="src/clustering/hierarchical.fs" />
    <Compile Include="src/clustering/incremental.fs" />
    <Compile Include="src/clustering/coarse.fs" />
-   <Compile Include="src/clustering/hybrid.fs" />
    <Compile Include="Program.fs" />
   </ItemGroup>
 

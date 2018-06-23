@@ -45,6 +45,7 @@ let matchPattern pattern tokens =
 // SCORING
 
 /// represents the evalutation of a pattern
+/// the bigger the better
 /// Note : the type is layed out by order of priority in comparaisons
 type Score = 
    {known : int; negativ_length : int}
