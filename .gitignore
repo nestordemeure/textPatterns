@@ -2,7 +2,7 @@
 *.log
 *.dll
 *.deb
-./bin/*
-./obj/*
+bin/*
+obj/*
 ./perf*
 *.data*
