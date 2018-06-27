@@ -1,0 +1,10 @@
+/home/nestor/Documents/Programming/F/patternExtraction/bin/Release/netcoreapp2.1/patternExtraction.deps.json
+/home/nestor/Documents/Programming/F/patternExtraction/bin/Release/netcoreapp2.1/patternExtraction.runtimeconfig.json
+/home/nestor/Documents/Programming/F/patternExtraction/bin/Release/netcoreapp2.1/patternExtraction.runtimeconfig.dev.json
+/home/nestor/Documents/Programming/F/patternExtraction/bin/Release/netcoreapp2.1/patternExtraction.dll
+/home/nestor/Documents/Programming/F/patternExtraction/bin/Release/netcoreapp2.1/patternExtraction.pdb
+/home/nestor/Documents/Programming/F/patternExtraction/obj/Release/netcoreapp2.1/patternExtraction.fsprojAssemblyReference.cache
+/home/nestor/Documents/Programming/F/patternExtraction/obj/Release/netcoreapp2.1/patternExtraction.AssemblyInfoInputs.cache
+/home/nestor/Documents/Programming/F/patternExtraction/obj/Release/netcoreapp2.1/patternExtraction.AssemblyInfo.fs
+/home/nestor/Documents/Programming/F/patternExtraction/obj/Release/netcoreapp2.1/patternExtraction.dll
+/home/nestor/Documents/Programming/F/patternExtraction/obj/Release/netcoreapp2.1/patternExtraction.pdb
