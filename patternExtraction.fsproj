@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-   <Compile Include="lib/functions.fs" />
-   <Compile Include="lib/priorityQ.fs" />
+   <Compile Include="src/misc/functions.fs" />
+   <Compile Include="src/misc/priorityQ.fs" />
    <Compile Include="src/pattern.fs" />
    <Compile Include="src/importation.fs" />
    <Compile Include="src/output.fs" />
@@ -16,7 +16,7 @@
    <Compile Include="src/clustering/incremental.fs" />
    <Compile Include="src/clustering/topDown.fs" />
    <Compile Include="src/clustering/coarse.fs" />
-   <Compile Include="Program.fs" />
+   <Compile Include="main.fs" />
   </ItemGroup>
 
 </Project>
