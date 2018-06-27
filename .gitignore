@@ -2,6 +2,7 @@
 *.log
 *.dll
 *.deb
+*.sh
 bin/*
 obj/*
 ./perf*
