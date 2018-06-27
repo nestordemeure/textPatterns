@@ -6,17 +6,31 @@ open Pattern
 // CLUSTERING
 
 /// returns true if the two logs are within the given distance
-let rec isInDistance distMax log1 log2 =
+let rec isInHammingDistance distMax log1 log2 =
    if distMax < 0 then false else 
       match log1, log2 with
       | [], [] -> true
-      | [], l | l, [] -> isInDistance (distMax - List.length l) [] []
-      | t1::q1, t2::q2 when t1=t2 -> isInDistance distMax q1 q2
-      | _::q1, _::q2 -> isInDistance (distMax-1) q1 q2
+      | [], l | l, [] -> isInHammingDistance (distMax - List.length l) [] []
+      | t1::q1, t2::q2 when t1=t2 -> isInHammingDistance distMax q1 q2
+      | _::q1, _::q2 -> isInHammingDistance (distMax-1) q1 q2
+
+/// bag of word dist ?
+
+/// returns true if the two logs are within the given distance
+/// uses a raw approximation of the edit distance
+let isInEditDistance distMax log1 log2 =
+   let rec distance distMax log1 log2 =
+      if distMax < 0 then false else 
+         match log1, log2 with
+         | [], [] -> true
+         | [], l | l, [] -> distance (distMax - List.length l) [] []
+         | t1::q1, t2::q2 when t1=t2 -> distance distMax q1 q2
+         | _::q1, _::q2 -> distance (distMax-1) q1 q2
+   distance distMax log1 log2
 
 /// returns true if the cluster contains an element close enough to the log
 let isInCluster distMax log cluster =
-   List.exists (isInDistance distMax log) cluster
+   List.exists (isInEditDistance distMax log) cluster
 
 /// add a log to the cluster list
 let addToClusters distMax clusters log =
