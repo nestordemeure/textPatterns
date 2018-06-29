@@ -11,7 +11,8 @@ let main path =
    let logs = logs (*|> Functions.listShuffle*) (*|> List.take 300*) |> List.sort//By List.length
    //let tree = Hierarchical.buildTree logs // nearly optimal but does not scale
    //let tree = Incremental.buildTreeIncrementaly logs // scales but not optimal
-   let tree = TopDown.buildTree 3 logs
+   //let tree = TopDown.buildTree 3 logs
+   let tree = Prefix.buildTree 1 logs
    //let tree = Hybrid.buildTree 200 logs
    //let tree = Coarse.buildTree logs
    Output.displayTree tree
