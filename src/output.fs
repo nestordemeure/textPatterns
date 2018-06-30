@@ -10,14 +10,15 @@ let stringOfToken token =
    match token with
    | Unknown -> "%s"
    | Word w -> w
-   | Numbered w -> w + "#"
+   | Numbered w -> w + "%d"
    | Space -> " "
    | Month -> "%{month}"
    | LPID -> "[%f]"
    | Path -> "%{path}"
    | NumberFloat -> "%f"
    | NumberInteger -> "%d"
-   | NumberHexadecimal length -> "%{" + (string length) + " hexa chars}"
+   //| NumberHexadecimal length -> "%{" + (string length) + " hexa chars}"
+   | NumberHexadecimal -> "%{hexa chars}"
 
 /// returns the string associated with a pattern
 let stringOfPattern pattern =

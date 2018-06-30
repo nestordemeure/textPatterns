@@ -9,7 +9,7 @@ type Token =
    | LPID
    | NumberInteger
    | NumberFloat
-   | NumberHexadecimal of length:int
+   | NumberHexadecimal //of length:int
    | Path
    | Unknown // match one or more tokens unless it comes at the end of the line in which case it can also match 0 tokens
 

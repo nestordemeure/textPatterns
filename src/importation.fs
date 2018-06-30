@@ -114,7 +114,7 @@ let rec typeDeduction tokens =
    | MonthMatcher :: q -> Month :: typeDeduction q
    | Word "[" :: Spaces :: Integer :: Word "." :: Integer :: Word "]" :: q 
    | Word "[" :: Integer :: Word "." :: Integer :: Word "]" :: q -> LPID :: typeDeduction q
-   | Hexa n ::q -> NumberHexadecimal n :: typeDeduction q
+   | Hexa n ::q -> NumberHexadecimal (*n*) :: typeDeduction q
    | Spaces :: q -> Space :: typeDeduction q
    | PathMatcher q -> Path :: typeDeduction q
    | Integer :: q -> NumberInteger :: typeDeduction q
