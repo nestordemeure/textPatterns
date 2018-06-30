@@ -1,10 +1,6 @@
 module Prefix
 open Pattern
 
-type PrefixTree =
-   | Leaf of (Token list) list
-   | Node of isLEaf:bool * childrens:Map<Token, PrefixTree>
-
 //-----------------------------------------------------------------------------
 // PREFIX
 
@@ -17,64 +13,62 @@ let signature log =
 
 /// checks if all the logs of a list start with the same token
 /// fail if one of them is empty
-let rec homogene logs =
-   match logs with 
+let rec homogene trees =
+   match trees with 
    | [] -> true
-   | (token::_) :: logs -> List.forall (fun log -> List.head log = token) logs
+   | tree :: logs -> 
+      let firstChar = List.head tree.pattern
+      List.forall (fun tree -> List.head tree.pattern = firstChar) trees
 
-/// replaces the first tokens of all logs with unknown
-let setFirstChar logs =
-   let set log =
-      match log with 
-      | [] -> log
-      | _::q -> Unknown::q
-   List.map set logs
+/// replaces the first tokens of all prefix with unknown
+let setFirstChar trees =
+   let set tree =
+      match tree.pattern with 
+      | [] -> tree
+      | _::q -> {tree with pattern = Unknown::q}
+   List.map set trees
 
-/// takes logs and makes sure that logs sharing the same signature starts with the same token or unknown
-let homogenise logs =
-   logs
-   |> List.groupBy signature
-   |> List.collect (fun (_,logs) -> if homogene logs then logs else setFirstChar logs)
+/// takes trees and make sure that prefix sharing the same signature starts with the same token or unknown
+/// fuse tree with identical prefix
+let homogenize trees =
+   trees
+   // homogenize prefixes
+   |> List.groupBy (fun tree -> signature tree.pattern)
+   |> List.collect (fun (_,trees) -> if homogene trees then trees else setFirstChar trees)
+   // fuse trees with identical prefix
+   |> List.groupBy (fun tree -> tree.pattern)
+   |> List.map (fun (prefix,trees) -> {pattern = prefix; childrens = List.collect (fun tree -> tree.childrens) trees})
+
+/// group tree by first char and drops the first char
+let split trees =
+   trees
+   |> List.groupBy (fun tree -> List.head tree.pattern)
+   |> List.map (snd >> List.map (fun tree -> {tree with pattern = List.tail tree.pattern}))
 
 //-----------------------------------------------------------------------------
 // CLUSTER
 
 /// takes a number of logs and a leafsize under wich it stops refining and outputs a prefixtree
-/// the idea is to keep the leaf size as large as possible, to build the tree using this coarse method and then to expend leafs with hierarchical clustering
-let rec buildPrefixTree maxLeafSize logs =
-   if List.length logs <= maxLeafSize then Leaf logs else 
-      let isLeaf = List.exists List.isEmpty logs
-      let logs = logs |> List.filter (List.isEmpty >> not) |> homogenise |> List.distinct
-      let childrens = logs |> List.groupBy List.head |> List.map (fun (key,logs) -> key, buildPrefixTree maxLeafSize (List.map List.tail logs)) |> Map.ofList
-      Node (isLeaf, childrens)
-
-/// takes a prefix tree and outputs a pattern tree
-/// for interoperability with existing code and algorithms
-let rec treeOfPrefix prefixRev prefixTree =
-   match prefixTree with 
-   | Leaf [log] ->
-      let prefix = List.rev prefixRev
-      let pattern = prefix @ log
-      makePatternTree [] pattern
-   | Leaf logs -> 
-      let prefix = List.rev prefixRev
-      let logs = List.map (fun log -> prefix @ log) logs
-      let pattern = List.reduce commonPattern logs
-      let childrens = List.map (makePatternTree []) logs
-      makePatternTree childrens pattern
-   | Node (false, childrens) when Map.count childrens = 1 -> 
-      childrens |> Map.toList |> List.head |> (fun (token,tree) -> treeOfPrefix (token::prefixRev) tree)
-   | Node (isLeaf, childrens) -> 
-      let childrens = childrens |> Seq.map (fun kv -> treeOfPrefix (kv.Key::prefixRev) kv.Value) |> Seq.toList
-      let childrens = if isLeaf then (makePatternTree [] (List.rev prefixRev)) :: childrens else childrens
-      let pattern = childrens |> List.map (fun c -> c.pattern) |> List.reduce commonPattern
-      makePatternTree childrens pattern
-
-//-----------------------------------------------------------------------------
-// TREE
-
-let buildTree maxLeafSize logs =
-   printfn "clustering"
-   let prefixTree = buildPrefixTree maxLeafSize logs
-   printfn "tree building"
-   treeOfPrefix [] prefixTree
+let buildTree logs =
+   /// uses a list of trees to represents prefix (as pattern) and logs (as childrens)
+   let trees = List.map (fun log -> makePatternTree [makePatternTree [] log] log) logs
+   /// build the final tree
+   let rec build trees =
+      match trees with 
+      | [] -> 
+         makePatternTree [] universalPattern
+      | [tree] -> 
+         let pattern = tree.childrens |> List.map (fun tree -> tree.pattern) |> List.reduce commonPattern
+         {tree with pattern = pattern}
+      | _ ->
+         let leafs, trees = List.partition (fun tree -> List.isEmpty tree.pattern) trees
+         let leaf = {pattern=[]; childrens=leafs |> List.map (fun tree -> tree.childrens) |> List.concat}
+         let childrens = trees |> homogenize |> split |> List.map build
+         let childrens = if List.isEmpty leafs then childrens else (build [leaf]) :: childrens
+         match childrens with
+         | [] -> makePatternTree [] universalPattern
+         | [child] -> child
+         | _ -> 
+            let pattern = childrens |> List.map (fun tree -> tree.pattern) |> List.reduce commonPattern
+            makePatternTree childrens pattern
+   build trees
