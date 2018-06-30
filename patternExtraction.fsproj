@@ -17,6 +17,8 @@
    <Compile Include="src/clustering/topDown.fs" />
    <Compile Include="src/clustering/coarse.fs" />
    <Compile Include="src/clustering/prefix.fs" />
+   <Compile Include="src/flattening/flatten.fs" />
+   <Compile Include="src/flattening/split.fs" />
    <Compile Include="main.fs" />
   </ItemGroup>
 

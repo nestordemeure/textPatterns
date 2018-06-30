@@ -8,15 +8,11 @@ let main path =
    printfn "Loading Logs..."
    let logs = Importation.importLogs path
    printfn "Building tree..."
-   let logs = logs (*|> Functions.listShuffle*) (*|> List.take 300*) |> List.sort//By List.length
-   //let tree = Hierarchical.buildTree logs // nearly optimal but does not scale
-   //let tree = Incremental.buildTreeIncrementaly logs // scales but not optimal
-   //let tree = TopDown.buildTree 3 logs
-   let tree = Prefix.buildTree 1 logs
-   //let tree = Hybrid.buildTree 200 logs
-   //let tree = Coarse.buildTree logs
+   let tree = Prefix.buildTree 0 logs
    Output.displayTree tree
-   //printfn "Cutting tree..."
+   printfn "Cutting tree..."
+   let patterns = Flatten.flatten tree
+   List.iter (Output.stringOfPattern >> printfn "%s") patterns
    //let patterns = Pattern.split 0.5 tree
    //let patterns = Pattern.splitDifferential 0.7 tree
    //printfn "Printing result..."

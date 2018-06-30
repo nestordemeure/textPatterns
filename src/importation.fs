@@ -38,6 +38,14 @@ let isSpace c =
 let isInHexa c =
    (isDigit c) || (c = 'x') || ((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F'))
 
+/// returns a string minus the trailing numbers
+let cutTrailingNumbers (str:string) =
+   let rec cut i = 
+      if i < 0 then str 
+      elif isDigit str.[i] then cut (i-1)
+      else str.[..i]
+   cut (str.Length-1)
+
 //-----
 
 /// active pattern that matches integers
@@ -92,6 +100,12 @@ let (|PathMatcher|_|) tokens =
       if isPath then Some q else None
    | _ -> None
 
+/// matches a word ending with a number
+let (|NumberedMatcher|_|) token =
+   match token with
+   | Word w when isDigit w.[w.Length-1] -> w |> cutTrailingNumbers |> Some
+   | _ -> None
+
 /// types a string of token
 /// we do not directly type integers and floats for fear of a mistake
 let rec typeDeduction tokens =
@@ -104,6 +118,7 @@ let rec typeDeduction tokens =
    | Spaces :: q -> Space :: typeDeduction q
    | PathMatcher q -> Path :: typeDeduction q
    | Integer :: q -> NumberInteger :: typeDeduction q
+   | NumberedMatcher w :: q -> Numbered w :: typeDeduction q
    | t::q -> t :: typeDeduction q
 
 //-----------------------------------------------------------------------------

@@ -10,6 +10,7 @@ let stringOfToken token =
    match token with
    | Unknown -> "%s"
    | Word w -> w
+   | Numbered w -> w + "#"
    | Space -> " "
    | Month -> "%{month}"
    | LPID -> "[%f]"
