@@ -11,12 +11,9 @@ let main path =
    let tree = Prefix.buildTree 0 logs
    Output.displayTree tree
    printfn "Cutting tree..."
-   let patterns = Flatten.flatten tree
+   let patterns = Common.split tree
+   //let patterns = Flatten.flatten tree
    List.iter (Output.stringOfPattern >> printfn "%s") patterns
-   //let patterns = Pattern.split 0.5 tree
-   //let patterns = Pattern.splitDifferential 0.7 tree
-   //printfn "Printing result..."
-   //Output.displayPatterns patterns
 
 //-----------------------------------------------------------------------------
 // TESTS

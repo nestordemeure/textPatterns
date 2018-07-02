@@ -19,6 +19,7 @@
    <Compile Include="src/clustering/prefix.fs" />
    <Compile Include="src/flattening/flatten.fs" />
    <Compile Include="src/flattening/split.fs" />
+   <Compile Include="src/flattening/common.fs" />
    <Compile Include="main.fs" />
   </ItemGroup>
 
